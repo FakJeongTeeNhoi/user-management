@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    container_name: app
+    restart: always
+    ports:
+      - "3020:3020"
+    networks:
+      - app
+
+networks:
+  app:
