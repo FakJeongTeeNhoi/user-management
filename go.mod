@@ -1,4 +1,4 @@
-module github.com/FakJeongTeeNhoi/template
+module user-management
 
 go 1.22
 
