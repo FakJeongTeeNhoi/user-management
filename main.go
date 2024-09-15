@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/FakJeongTeeNhoi/user-management/model"
+	"github.com/FakJeongTeeNhoi/user-management/router"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -15,7 +17,7 @@ func main() {
 
 	fmt.Println("Starting server...")
 
-	// TODO: Connect to database using gorm
+	model.InitDB()
 
 	server := gin.Default()
 
@@ -29,6 +31,7 @@ func main() {
 	api := server.Group("/api")
 
 	// TODO: Add routes here
+	router.UserRouterGroup(api)
 
 	err = server.Run(":3020")
 	if err != nil {
