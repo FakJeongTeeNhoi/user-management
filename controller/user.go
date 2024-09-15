@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
+	"github.com/FakJeongTeeNhoi/user-management/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +15,7 @@ func RegisterUserHandler(c *gin.Context) {
 	}
 
 	user := ucr.ToUser()
-	user, err := user.Create()
+	err := user.Create()
 	if err != nil {
 		response.InternalServerError("Failed to create user").AbortWithError(c)
 		return
@@ -25,4 +26,77 @@ func RegisterUserHandler(c *gin.Context) {
 	}.AddInterfaces(map[string]interface{}{
 		"user": user,
 	}))
+}
+
+func GetAllUsersHandler(c *gin.Context) {
+	users := model.Users{}
+	if err := users.GetAll(nil); err != nil {
+		response.InternalServerError("Failed to get users").AbortWithError(c)
+		return
+	}
+
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	}.AddInterfaces(map[string]interface{}{
+		"users": users,
+	}))
+}
+
+func GetUserHandler(c *gin.Context) {
+	accountId := c.Param("accountId")
+	user := model.User{}
+
+	if err := user.GetOne(map[string]interface{}{"id": service.ParseToUint(accountId)}); err != nil {
+		response.NotFound("User not found").AbortWithError(c)
+		return
+	}
+
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	}.AddInterfaces(map[string]interface{}{
+		"user": user,
+	}))
+}
+
+func UpdateUserHandler(c *gin.Context) {
+	uur := model.UserUpdateRequest{}
+	if err := c.ShouldBindJSON(&uur); err != nil {
+		response.BadRequest("Invalid request").AbortWithError(c)
+		return
+	}
+
+	user := model.User{}
+	if err := user.GetOne(map[string]interface{}{"id": uur.ID}); err != nil {
+		response.NotFound("User not found").AbortWithError(c)
+		return
+	}
+
+	user = uur.ToUser(user)
+	if err := user.Update(); err != nil {
+		response.InternalServerError("Failed to update user").AbortWithError(c)
+		return
+	}
+
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	})
+}
+
+func DeleteUserHandler(c *gin.Context) {
+	accountId := c.Param("accountId")
+
+	user := model.User{}
+	if err := user.GetOne(map[string]interface{}{"id": service.ParseToUint(accountId)}); err != nil {
+		response.NotFound("User not found").AbortWithError(c)
+		return
+	}
+
+	if err := user.Delete(); err != nil {
+		response.InternalServerError("Failed to delete user").AbortWithError(c)
+		return
+	}
+
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	})
 }

@@ -2,7 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
-type account struct {
+type Account struct {
 	gorm.Model
 	Email    string `json:"email" gorm:"unique;not null"`
 	Password string `json:"password" gorm:"not null"`
@@ -17,4 +17,11 @@ type accountCreateRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Faculty  string `json:"faculty" binding:"required"`
 	Type     string `json:"type" binding:"required"`
+}
+
+type accountUpdateRequest struct {
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	Faculty string `json:"faculty"`
+	Type    string `json:"type"`
 }

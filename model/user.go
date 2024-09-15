@@ -1,13 +1,24 @@
 package model
 
+import (
+	"cmp"
+	"gorm.io/gorm"
+)
+
 type User struct {
-	account
+	Account
 	Role   string `json:"role" gorm:"not null"`
 	UserId string `json:"user_id" gorm:"unique;not null"`
 }
 
 type UserCreateRequest struct {
 	accountCreateRequest
+	Role   string `json:"role" gorm:"not null"`
+	UserId string `json:"user_id" gorm:"unique;not null"`
+}
+
+type UserUpdateRequest struct {
+	accountUpdateRequest
 	Role   string `json:"role"`
 	UserId string `json:"user_id"`
 }
@@ -16,7 +27,7 @@ type Users []User
 
 func (ucr *UserCreateRequest) ToUser() User {
 	return User{
-		account: account{
+		Account: Account{
 			Email:    ucr.Email,
 			Password: ucr.Password,
 			Name:     ucr.Name,
@@ -28,39 +39,47 @@ func (ucr *UserCreateRequest) ToUser() User {
 	}
 }
 
-func (u *User) Create() (User, error) {
+func (uur *UserUpdateRequest) ToUser(u User) User {
+	return User{
+		Account: Account{
+			Model: gorm.Model{
+				ID:        u.ID,
+				CreatedAt: u.CreatedAt,
+				UpdatedAt: u.UpdatedAt,
+				DeletedAt: u.DeletedAt,
+			},
+			Email:    u.Email,
+			Password: u.Password,
+			Name:     cmp.Or(uur.Name, u.Name),
+			Faculty:  cmp.Or(uur.Faculty, u.Faculty),
+			Type:     cmp.Or(uur.Type, u.Type),
+		},
+		Role:   cmp.Or(uur.Role, u.Role),
+		UserId: cmp.Or(uur.UserId, u.UserId),
+	}
+}
+
+func (u *User) Create() error {
 	result := MainDB.Model(&User{}).Create(u)
-	if result.Error != nil {
-		return User{}, result.Error
-	}
-	return *u, nil
+	return result.Error
 }
 
-func (u *Users) GetAll(filter interface{}) (Users, error) {
-	result := MainDB.Model(&User{}).Where(filter).Preload("Account").Find(u)
-	if result.Error != nil {
-		return Users{}, result.Error
-	}
-	return *u, nil
+func (u *Users) GetAll(filter interface{}) error {
+	result := MainDB.Model(&User{}).Where(filter).Find(u)
+	return result.Error
 }
 
-func (u *User) GetOne(filter interface{}) (User, error) {
+func (u *User) GetOne(filter interface{}) error {
 	result := MainDB.Model(&User{}).Where(filter).First(u)
-	if result.Error != nil {
-		return User{}, result.Error
-	}
-	return *u, nil
+	return result.Error
 }
 
-func (u *User) Update(filter interface{}) (User, error) {
-	result := MainDB.Model(&User{}).Where(filter).Updates(u)
-	if result.Error != nil {
-		return User{}, result.Error
-	}
-	return *u, nil
+func (u *User) Update() error {
+	result := MainDB.Model(&User{}).Where("id = ?", u.ID).Updates(u)
+	return result.Error
 }
 
-func (u *User) Delete(filter interface{}) error {
-	result := MainDB.Model(&User{}).Where(filter).Delete(u)
+func (u *User) Delete() error {
+	result := MainDB.Model(&User{}).Delete(u)
 	return result.Error
 }

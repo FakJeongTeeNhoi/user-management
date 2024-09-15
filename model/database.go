@@ -32,9 +32,8 @@ func InitDB() {
 func MigrateDB() {
 	// TODO: Add models here
 	Models := []interface{}{
-		&account{},
+		&Account{},
 		&User{},
-		&Staff{},
 	}
 
 	err := MainDB.AutoMigrate(Models...)
