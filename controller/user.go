@@ -38,6 +38,7 @@ func GetAllUsersHandler(c *gin.Context) {
 	c.JSON(200, response.CommonResponse{
 		Success: true,
 	}.AddInterfaces(map[string]interface{}{
+		"count": len(users),
 		"users": users,
 	}))
 }
