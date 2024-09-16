@@ -32,6 +32,7 @@ func InitDB() {
 func MigrateDB() {
 	// TODO: Add models here
 	Models := []interface{}{
+		&Account{},
 		&User{},
 	}
 

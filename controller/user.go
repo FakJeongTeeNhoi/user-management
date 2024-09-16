@@ -47,7 +47,7 @@ func GetUserHandler(c *gin.Context) {
 	accountId := c.Param("accountId")
 	user := model.User{}
 
-	if err := user.GetOne(map[string]interface{}{"id": service.ParseToUint(accountId)}); err != nil {
+	if err := user.GetOne(map[string]interface{}{"account_id": service.ParseToUint(accountId)}); err != nil {
 		response.NotFound("User not found").AbortWithError(c)
 		return
 	}
@@ -67,7 +67,7 @@ func UpdateUserHandler(c *gin.Context) {
 	}
 
 	user := model.User{}
-	if err := user.GetOne(map[string]interface{}{"id": uur.ID}); err != nil {
+	if err := user.GetOne(map[string]interface{}{"account_id": uur.ID}); err != nil {
 		response.NotFound("User not found").AbortWithError(c)
 		return
 	}
@@ -87,7 +87,7 @@ func DeleteUserHandler(c *gin.Context) {
 	accountId := c.Param("accountId")
 
 	user := model.User{}
-	if err := user.GetOne(map[string]interface{}{"id": service.ParseToUint(accountId)}); err != nil {
+	if err := user.GetOne(map[string]interface{}{"account_id": service.ParseToUint(accountId)}); err != nil {
 		response.NotFound("User not found").AbortWithError(c)
 		return
 	}
