@@ -8,8 +8,9 @@ import (
 type User struct {
 	Account   Account `json:"account" gorm:"foreignKey:AccountId"`
 	AccountId uint    `json:"account_id" gorm:"not null"`
-	Role      string  `json:"role" gorm:"not null"`
-	UserId    string  `json:"user_id" gorm:"unique;not null"`
+	DeletedAt gorm.DeletedAt
+	Role      string `json:"role" gorm:"not null"`
+	UserId    string `json:"user_id" gorm:"unique;not null"`
 }
 
 type UserCreateRequest struct {
@@ -93,7 +94,7 @@ func (u *User) Delete() error {
 		if err := tx.Model(&User{}).Where("account_id = ?", u.AccountId).Delete(User{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&Account{}).Where("id = ?", u.AccountId).Unscoped().Delete(
+		if err := tx.Model(&Account{}).Where("id = ?", u.AccountId).Delete(
 			map[string]interface{}{
 				"id": u.AccountId,
 			}).Error; err != nil {
