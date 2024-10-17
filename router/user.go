@@ -7,10 +7,11 @@ import (
 
 func UserRouterGroup(server *gin.RouterGroup) {
 	user := server.Group("/user")
-	{
-		user.GET("/", controller.GetAllUsersHandler)
-		user.GET("/:accountId", controller.GetUserHandler)
-		user.PUT("/", controller.UpdateUserHandler)
-		user.DELETE("/:accountId", controller.DeleteUserHandler)
-	}
+
+	// TODO: Add middleware here
+
+	user.GET("/", controller.GetAllUsersHandler)
+	user.GET("/:accountId", controller.GetUserHandler)
+	user.PUT("/", controller.UpdateUserHandler)
+	user.DELETE("/:accountId", controller.DeleteUserHandler)
 }
