@@ -17,4 +17,8 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 	authentication.GET("/verify", controller.VerifyHandler).
 		Use(middleware.Authorize()).
 		Use(middleware.SetAccountInfo())
+
+	authentication.POST("change-password", controller.ChangePasswordHandler).
+		Use(middleware.Authorize()).
+		Use(middleware.SetAccountInfo())
 }

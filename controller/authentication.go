@@ -145,3 +145,45 @@ func RegisterHandler(c *gin.Context) {
 		Success: true,
 	})
 }
+
+func ChangePasswordHandler(c *gin.Context) {
+	info, exists := c.Get("user")
+	if !exists {
+		response.InternalServerError("Cannot get account info").AbortWithError(c)
+		return
+	}
+
+	accountInfo := info.(jwt.MapClaims)
+	email := accountInfo["email"].(string)
+
+	cpr := model.ChangePasswordRequest{}
+	if err := c.ShouldBindJSON(&cpr); err != nil {
+		response.BadRequest("Invalid request").AbortWithError(c)
+		return
+	}
+
+	account, err := service.ValidateCredential(model.LoginRequest{
+		Email:    email,
+		Password: cpr.OldPassword,
+	})
+	if err != nil {
+		response.BadRequest("Invalid old password").AbortWithError(c)
+		return
+	}
+
+	encryptedPassword, err := service.EncryptPassword(cpr.NewPassword)
+	if err != nil {
+		response.InternalServerError("Failed to encrypt password").AbortWithError(c)
+		return
+	}
+
+	account.Password = encryptedPassword
+	if err := account.Update(); err != nil {
+		response.InternalServerError("Failed to change password").AbortWithError(c)
+		return
+	}
+
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	})
+}
