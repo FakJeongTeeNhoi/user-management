@@ -34,6 +34,7 @@ func MigrateDB() {
 	Models := []interface{}{
 		&Account{},
 		&User{},
+		&Staff{},
 	}
 
 	err := MainDB.AutoMigrate(Models...)
