@@ -4,8 +4,9 @@ import (
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
-
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"os"
 )
 
 func LoginHandler(c *gin.Context) {
@@ -50,12 +51,27 @@ func LogoutHandler(c *gin.Context) {
 	})
 }
 
+func VerifyHandler(c *gin.Context) {
+	info, err := c.Get("user")
+	if !err {
+		response.InternalServerError("Cannot get account info").AbortWithError(c)
+		return
+	}
+
+	accountInfo := info.(jwt.MapClaims)
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	}.AddInterfaces(accountInfo))
+}
+
 func RegisterHandler(c *gin.Context) {
 	userType := c.Param("type")
 	if userType != "staff" && userType != "user" {
 		response.BadRequest("Invalid user type").AbortWithError(c)
 		return
 	}
+
+	var receiverEmail, emailSubject, emailBody string
 
 	if userType == "staff" {
 		scr := model.StaffCreateRequest{}
@@ -68,24 +84,26 @@ func RegisterHandler(c *gin.Context) {
 		password := service.RandomString(8)
 		scr.Password = password
 
-		_, err := createStaffHandler(scr)
+		staff, err := createStaffHandler(scr)
 		if err != nil {
 			response.InternalServerError("Failed to create staff").AbortWithError(c)
 			return
 		}
 
-		if err := service.SendMail(
-			scr.Email,
-			"Staff Registration",
-			"Your account has been created. Your password is "+password,
-		); err != nil {
-			response.InternalServerError("Failed to send email").AbortWithError(c)
+		token, err := service.GenerateToken(userType, staff.Account)
+
+		if err != nil {
+			response.InternalServerError("Cannot generate token").AbortWithError(c)
 			return
 		}
 
-		c.JSON(201, response.CommonResponse{
-			Success: true,
-		})
+		receiverEmail = scr.Email
+		emailSubject = "Staff Registration"
+		emailBody = "Your account has been created. Your password is " + password +
+			". Please validate your account by clicking the link below: " +
+			os.Getenv("FRONTEND_URL") +
+			os.Getenv("STAFF_VALIDATE_PATH") +
+			"?token=" + token
 	} else {
 		ucr := model.UserCreateRequest{}
 		if err := c.ShouldBindJSON(&ucr); err != nil {
@@ -96,23 +114,34 @@ func RegisterHandler(c *gin.Context) {
 		password := service.RandomString(8)
 		ucr.Password = password
 
-		_, err := registerUserHandler(ucr)
+		user, err := registerUserHandler(ucr)
 		if err != nil {
 			response.InternalServerError("Failed to create user").AbortWithError(c)
 			return
 		}
 
-		if err := service.SendMail(
-			ucr.Email,
-			"User Registration",
-			"Your account has been created. Your password is "+password,
-		); err != nil {
-			response.InternalServerError("Failed to send email").AbortWithError(c)
+		token, err := service.GenerateToken(userType, user.Account)
+		if err != nil {
+			response.InternalServerError("Cannot generate token").AbortWithError(c)
 			return
 		}
 
-		c.JSON(201, response.CommonResponse{
-			Success: true,
-		})
+		receiverEmail = ucr.Email
+		emailSubject = "User Registration"
+		emailBody = "Your account has been created. Your password is " + password +
+			". Please validate your account by clicking the link below: " +
+			os.Getenv("FRONTEND_URL") +
+			os.Getenv("STAFF_VALIDATE_PATH") +
+			"?token=" + token
 	}
+
+	err := service.SendMail(receiverEmail, emailSubject, emailBody)
+	if err != nil {
+		response.InternalServerError("Failed to send email").AbortWithError(c)
+		return
+	}
+
+	c.JSON(201, response.CommonResponse{
+		Success: true,
+	})
 }
