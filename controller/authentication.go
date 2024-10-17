@@ -43,6 +43,13 @@ func LoginHandler(c *gin.Context) {
 	}))
 }
 
+func LogoutHandler(c *gin.Context) {
+	c.SetCookie("token", "", -1, "/", "", false, false)
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	})
+}
+
 func RegisterHandler(c *gin.Context) {
 	userType := c.Param("type")
 	if userType != "staff" && userType != "user" {

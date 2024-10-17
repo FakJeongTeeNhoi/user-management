@@ -11,5 +11,6 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 	// TODO: Add middleware here
 
 	authentication.POST("/login", controller.LoginHandler)
+	authentication.POST("/logout", controller.LogoutHandler)
 	authentication.POST("/register", controller.RegisterHandler)
 }

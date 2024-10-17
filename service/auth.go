@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -55,8 +56,12 @@ func GenerateToken(userType string, account model.Account) (string, error) {
 		claims["user_id"] = user.UserId
 	}
 
+	ttl := ParseToInt(os.Getenv("JWT_TTL"))
+	claims["exp"] = time.Now().Add(time.Second * time.Duration(ttl)).Unix()
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(os.Getenv("JWT_SECRET"))
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
 }
 
 func GetInfoFromToken(tokenString string) (jwt.MapClaims, error) {

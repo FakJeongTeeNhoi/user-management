@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -110,7 +111,16 @@ func verifyToken(tokenString string) error {
 	}
 
 	if !token.Valid {
-		return fmt.Errorf("Invalid token")
+		return fmt.Errorf("invalid token")
+	}
+
+	info, err := service.GetInfoFromToken(tokenString)
+	if err != nil {
+		return err
+	}
+
+	if info["exp"].(float64) < float64(time.Now().Unix()) {
+		return fmt.Errorf("token is expired")
 	}
 
 	return nil
