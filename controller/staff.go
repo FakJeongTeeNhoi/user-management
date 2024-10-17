@@ -7,31 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateStaffHandler(c *gin.Context) {
-	stf := model.StaffCreateRequest{}
-	if err := c.ShouldBindJSON(&stf); err != nil {
-		response.BadRequest("Invalid request").AbortWithError(c)
-		return
-	}
+func createStaffHandler(stf model.StaffCreateRequest) (model.Staff, error) {
 	encryptedPassword, err := service.EncryptPassword(stf.Password)
 	if err != nil {
-		response.InternalServerError("Failed to encrypt password").AbortWithError(c)
-		return
+		return model.Staff{}, err
 	}
 	stf.Password = encryptedPassword
 
 	staff := stf.ToStaff()
 	err = staff.Create()
 	if err != nil {
-		response.InternalServerError("Failed to create staff").AbortWithError(c)
-		return
+		return model.Staff{}, err
 	}
 
-	c.JSON(201, response.CommonResponse{
-		Success: true,
-	}.AddInterfaces(map[string]interface{}{
-		"staff": staff,
-	}))
+	return staff, nil
 }
 
 func GetAllStaffHandler(c *gin.Context) {

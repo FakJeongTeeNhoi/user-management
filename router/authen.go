@@ -10,5 +10,6 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 	authentication := server.Group("/authen")
 	{
 		authentication.POST("/login", controller.LoginHandler)
+		authentication.POST("/register", controller.RegisterHandler)
 	}
 }

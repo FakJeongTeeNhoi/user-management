@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/router"
+	"github.com/FakJeongTeeNhoi/user-management/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -16,6 +17,8 @@ func main() {
 	}
 
 	fmt.Println("Starting server...")
+
+	service.ConnectMailer()
 
 	model.InitDB()
 

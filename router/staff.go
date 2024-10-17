@@ -7,11 +7,10 @@ import (
 
 func StaffRouterGroup(server *gin.RouterGroup) {
 	staff := server.Group("/staff")
-    {
-        staff.POST("/", controller.CreateStaffHandler)
+	{
 		staff.GET("/", controller.GetAllStaffHandler)
 		staff.GET("/:accountId", controller.GetStaffHandler)
 		staff.PUT("/", controller.UpdateStaffHandler)
 		staff.DELETE("/:accountId", controller.DeleteStaffHandler)
-    }
+	}
 }

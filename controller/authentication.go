@@ -42,3 +42,70 @@ func LoginHandler(c *gin.Context) {
 		"token": token,
 	}))
 }
+
+func RegisterHandler(c *gin.Context) {
+	userType := c.Param("type")
+	if userType != "staff" && userType != "user" {
+		response.BadRequest("Invalid user type").AbortWithError(c)
+		return
+	}
+
+	if userType == "staff" {
+		scr := model.StaffCreateRequest{}
+		if err := c.ShouldBindJSON(&scr); err != nil {
+			response.BadRequest("Invalid request").AbortWithError(c)
+			return
+		}
+
+		// random 6 letter password
+		password := service.RandomString(8)
+		scr.Password = password
+
+		_, err := createStaffHandler(scr)
+		if err != nil {
+			response.InternalServerError("Failed to create staff").AbortWithError(c)
+			return
+		}
+
+		if err := service.SendMail(
+			scr.Email,
+			"Staff Registration",
+			"Your account has been created. Your password is "+password,
+		); err != nil {
+			response.InternalServerError("Failed to send email").AbortWithError(c)
+			return
+		}
+
+		c.JSON(201, response.CommonResponse{
+			Success: true,
+		})
+	} else {
+		ucr := model.UserCreateRequest{}
+		if err := c.ShouldBindJSON(&ucr); err != nil {
+			response.BadRequest("Invalid request").AbortWithError(c)
+			return
+		}
+
+		password := service.RandomString(8)
+		ucr.Password = password
+
+		_, err := registerUserHandler(ucr)
+		if err != nil {
+			response.InternalServerError("Failed to create user").AbortWithError(c)
+			return
+		}
+
+		if err := service.SendMail(
+			ucr.Email,
+			"User Registration",
+			"Your account has been created. Your password is "+password,
+		); err != nil {
+			response.InternalServerError("Failed to send email").AbortWithError(c)
+			return
+		}
+
+		c.JSON(201, response.CommonResponse{
+			Success: true,
+		})
+	}
+}
