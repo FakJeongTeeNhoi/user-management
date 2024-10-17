@@ -33,6 +33,7 @@ func main() {
 	// TODO: Add routes here
 	router.UserRouterGroup(api)
 	router.StaffRouterGroup(api)
+	router.AuthenticationGroup(api)
 
 	err = server.Run(":3020")
 	if err != nil {

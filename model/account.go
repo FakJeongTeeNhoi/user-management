@@ -25,3 +25,26 @@ type accountUpdateRequest struct {
 	Faculty string `json:"faculty"`
 	Type    string `json:"type"`
 }
+
+func (a *Account) GetOne(filter interface{}) error {
+	result := MainDB.Model(&Account{}).Where(filter).First(a)
+	return result.Error
+}
+
+func (a *Account) Create() error {
+	result := MainDB.Model(&Account{}).Create(a)
+	return result.Error
+}
+
+func (a *Account) Update() error {
+	result := MainDB.Model(&Account{}).Save(a)
+	return result.Error
+}
+
+func (a *Account) Delete() error {
+	result := MainDB.Model(&Account{}).Where("id = ?", a.ID).Unscoped().Delete(
+		map[string]interface{}{
+			"id": a.ID,
+		})
+	return result.Error
+}

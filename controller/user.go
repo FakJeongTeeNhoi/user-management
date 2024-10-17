@@ -13,9 +13,15 @@ func RegisterUserHandler(c *gin.Context) {
 		response.BadRequest("Invalid request").AbortWithError(c)
 		return
 	}
+	encryptedPassword, err := service.EncryptPassword(ucr.Password)
+	if err != nil {
+		response.InternalServerError("Failed to encrypt password").AbortWithError(c)
+		return
+	}
+	ucr.Password = encryptedPassword
 
 	user := ucr.ToUser()
-	err := user.Create()
+	err = user.Create()
 	if err != nil {
 		response.InternalServerError("Failed to create user").AbortWithError(c)
 		return
