@@ -14,11 +14,13 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 	authentication.POST("/login", controller.LoginHandler)
 	authentication.POST("/logout", controller.LogoutHandler)
 	authentication.POST("/register", controller.RegisterHandler)
-	authentication.GET("/verify", controller.VerifyHandler).
-		Use(middleware.Authorize()).
-		Use(middleware.SetAccountInfo())
+	authentication.GET("/verify",
+		middleware.Authorize(),
+		middleware.SetAccountInfo(),
+		controller.VerifyHandler)
 
-	authentication.POST("change-password", controller.ChangePasswordHandler).
-		Use(middleware.Authorize()).
-		Use(middleware.SetAccountInfo())
+	authentication.POST("change-password",
+		middleware.Authorize(),
+		middleware.SetAccountInfo(),
+		controller.ChangePasswordHandler)
 }

@@ -13,7 +13,7 @@ type Account struct {
 
 type accountCreateRequest struct {
 	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password"`
 	Name     string `json:"name" binding:"required"`
 	Faculty  string `json:"faculty" binding:"required"`
 	Type     string `json:"type" binding:"required"`
@@ -37,7 +37,7 @@ func (a *Account) Create() error {
 }
 
 func (a *Account) Update() error {
-	result := MainDB.Model(&Account{}).Save(a)
+	result := MainDB.Model(&Account{}).Where("id = ?", a.ID).Updates(a)
 	return result.Error
 }
 

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
@@ -10,7 +11,7 @@ import (
 )
 
 func LoginHandler(c *gin.Context) {
-	userType := c.Param("type")
+	userType := c.Query("type")
 	if userType != "staff" && userType != "user" {
 		response.BadRequest("Invalid user type").AbortWithError(c)
 		return
@@ -52,8 +53,8 @@ func LogoutHandler(c *gin.Context) {
 }
 
 func VerifyHandler(c *gin.Context) {
-	info, err := c.Get("user")
-	if !err {
+	info, exists := c.Get("user")
+	if !exists {
 		response.InternalServerError("Cannot get account info").AbortWithError(c)
 		return
 	}
@@ -65,13 +66,18 @@ func VerifyHandler(c *gin.Context) {
 }
 
 func RegisterHandler(c *gin.Context) {
-	userType := c.Param("type")
+	userType := c.Query("type")
 	if userType != "staff" && userType != "user" {
 		response.BadRequest("Invalid user type").AbortWithError(c)
 		return
 	}
 
 	var receiverEmail, emailSubject, emailBody string
+	var user model.User
+	var staff model.Staff
+
+	password := service.RandomString(8)
+	fmt.Println(password)
 
 	if userType == "staff" {
 		scr := model.StaffCreateRequest{}
@@ -80,11 +86,10 @@ func RegisterHandler(c *gin.Context) {
 			return
 		}
 
-		// random 6 letter password
-		password := service.RandomString(8)
 		scr.Password = password
 
-		staff, err := createStaffHandler(scr)
+		var err error
+		staff, err = createStaffHandler(scr)
 		if err != nil {
 			response.InternalServerError("Failed to create staff").AbortWithError(c)
 			return
@@ -93,17 +98,19 @@ func RegisterHandler(c *gin.Context) {
 		token, err := service.GenerateToken(userType, staff.Account)
 
 		if err != nil {
+			_ = staff.Delete()
+
 			response.InternalServerError("Cannot generate token").AbortWithError(c)
 			return
 		}
 
 		receiverEmail = scr.Email
 		emailSubject = "Staff Registration"
-		emailBody = "Your account has been created. Your password is " + password +
-			". Please validate your account by clicking the link below: " +
+		emailBody = "Your account has been created. Your password is <b>" + password +
+			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
 			os.Getenv("STAFF_VALIDATE_PATH") +
-			"?token=" + token
+			"?token=" + token + "'>Validate</a>"
 	} else {
 		ucr := model.UserCreateRequest{}
 		if err := c.ShouldBindJSON(&ucr); err != nil {
@@ -111,10 +118,10 @@ func RegisterHandler(c *gin.Context) {
 			return
 		}
 
-		password := service.RandomString(8)
 		ucr.Password = password
 
-		user, err := registerUserHandler(ucr)
+		var err error
+		user, err = registerUserHandler(ucr)
 		if err != nil {
 			response.InternalServerError("Failed to create user").AbortWithError(c)
 			return
@@ -122,21 +129,30 @@ func RegisterHandler(c *gin.Context) {
 
 		token, err := service.GenerateToken(userType, user.Account)
 		if err != nil {
+			_ = user.Delete()
+
 			response.InternalServerError("Cannot generate token").AbortWithError(c)
 			return
 		}
 
 		receiverEmail = ucr.Email
 		emailSubject = "User Registration"
-		emailBody = "Your account has been created. Your password is " + password +
-			". Please validate your account by clicking the link below: " +
+		emailBody = "Your account has been created. Your password is <b>" + password +
+			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
 			os.Getenv("STAFF_VALIDATE_PATH") +
-			"?token=" + token
+			"?token=" + token + "'>Validate</a>"
 	}
 
 	err := service.SendMail(receiverEmail, emailSubject, emailBody)
 	if err != nil {
+
+		if userType == "staff" {
+			_ = staff.Delete()
+		} else {
+			_ = user.Delete()
+		}
+
 		response.InternalServerError("Failed to send email").AbortWithError(c)
 		return
 	}
