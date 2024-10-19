@@ -2,19 +2,18 @@ package model
 
 import (
 	"cmp"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
-    "github.com/google/uuid"
 )
 
-
 type Staff struct {
-	Account   Account `json:"account" gorm:"foreignKey:AccountId"`
-	AccountId uint    `json:"account_id" gorm:"not null"`
+	Account    Account     `json:"account" gorm:"foreignKey:AccountId"`
+	AccountId  uint        `json:"account_id" gorm:"not null"`
 	Space_list []uuid.UUID `json:"space_list" gorm:"type:uuid[]"`
 }
 
 type StaffCreateRequest struct {
-    accountCreateRequest
+	accountCreateRequest
 }
 
 type StaffUpdateRequest struct {
@@ -25,15 +24,15 @@ type Staffs []Staff
 
 func (stf *StaffCreateRequest) ToStaff() Staff {
 	return Staff{
-        Account: Account{
-            Email:    stf.Email,
-            Password: stf.Password,
-            Name:     stf.Name,
-            Faculty:  stf.Faculty,
-            Type:     stf.Type,
-        },
-        Space_list: []uuid.UUID{},
-    }
+		Account: Account{
+			Email:    stf.Email,
+			Password: stf.Password,
+			Name:     stf.Name,
+			Faculty:  stf.Faculty,
+			Type:     stf.Type,
+		},
+		Space_list: []uuid.UUID{},
+	}
 }
 
 func (sur *StaffUpdateRequest) ToStaff(s Staff) Staff {
@@ -51,7 +50,7 @@ func (sur *StaffUpdateRequest) ToStaff(s Staff) Staff {
 			Faculty:  cmp.Or(sur.Faculty, s.Account.Faculty),
 			Type:     cmp.Or(sur.Type, s.Account.Type),
 		},
-		AccountId: s.AccountId,
+		AccountId:  s.AccountId,
 		Space_list: s.Space_list,
 	}
 }
@@ -62,8 +61,8 @@ func (s *Staff) Create() error {
 }
 
 func (s *Staffs) GetAll(filter interface{}) error {
-    result := MainDB.Model(&Staff{}).Where(filter).Preload("Account").Find(s)
-    return result.Error
+	result := MainDB.Model(&Staff{}).Where(filter).Preload("Account").Find(s)
+	return result.Error
 }
 
 func (s *Staff) GetOne(filter interface{}) error {

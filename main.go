@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/router"
+	"github.com/FakJeongTeeNhoi/user-management/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -16,6 +17,8 @@ func main() {
 	}
 
 	fmt.Println("Starting server...")
+
+	service.ConnectMailer()
 
 	model.InitDB()
 
@@ -33,6 +36,7 @@ func main() {
 	// TODO: Add routes here
 	router.UserRouterGroup(api)
 	router.StaffRouterGroup(api)
+	router.AuthenticationGroup(api)
 
 	err = server.Run(":3020")
 	if err != nil {

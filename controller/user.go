@@ -7,25 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUserHandler(c *gin.Context) {
-	ucr := model.UserCreateRequest{}
-	if err := c.ShouldBindJSON(&ucr); err != nil {
-		response.BadRequest("Invalid request").AbortWithError(c)
-		return
+func registerUserHandler(ucr model.UserCreateRequest) (model.User, error) {
+	encryptedPassword, err := service.EncryptPassword(ucr.Password)
+	if err != nil {
+		return model.User{}, err
 	}
+	ucr.Password = encryptedPassword
 
 	user := ucr.ToUser()
-	err := user.Create()
+	err = user.Create()
 	if err != nil {
-		response.InternalServerError("Failed to create user").AbortWithError(c)
-		return
+		return model.User{}, err
 	}
 
-	c.JSON(201, response.CommonResponse{
-		Success: true,
-	}.AddInterfaces(map[string]interface{}{
-		"user": user,
-	}))
+	return user, nil
 }
 
 func GetAllUsersHandler(c *gin.Context) {
