@@ -2,12 +2,13 @@ package controller
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"os"
 )
 
 func LoginHandler(c *gin.Context) {
@@ -112,7 +113,7 @@ func RegisterHandler(c *gin.Context) {
 		emailBody = "Your account has been created. Your password is <b>" + password +
 			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
-			os.Getenv("STAFF_VALIDATE_PATH") +
+			os.Getenv("STAFF_VERIFY_PATH") +
 			"?name=" + staff.Account.Name + "&token=" + token + "'>Validate</a>"
 	} else {
 		ucr := model.UserCreateRequest{}
@@ -143,7 +144,7 @@ func RegisterHandler(c *gin.Context) {
 		emailBody = "Your account has been created. Your password is <b>" + password +
 			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
-			os.Getenv("USER_VALIDATE_PATH") +
+			os.Getenv("USER_VERIFY_PATH") +
 			"?name=" + user.Account.Name + "&token=" + token + "'>Validate</a>"
 	}
 
