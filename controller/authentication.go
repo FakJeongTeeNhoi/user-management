@@ -37,11 +37,14 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
+	userInfo, _ := service.GetInfoFromToken(token)
+
 	c.SetCookie("token", token, 3600, "/", "", false, false)
 	c.JSON(201, response.CommonResponse{
 		Success: true,
 	}.AddInterfaces(map[string]interface{}{
-		"token": token,
+		"token":    token,
+		"userInfo": userInfo,
 	}))
 }
 
@@ -110,7 +113,7 @@ func RegisterHandler(c *gin.Context) {
 			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
 			os.Getenv("STAFF_VALIDATE_PATH") +
-			"?token=" + token + "'>Validate</a>"
+			"?name=" + staff.Account.Name + "&token=" + token + "'>Validate</a>"
 	} else {
 		ucr := model.UserCreateRequest{}
 		if err := c.ShouldBindJSON(&ucr); err != nil {
@@ -140,8 +143,8 @@ func RegisterHandler(c *gin.Context) {
 		emailBody = "Your account has been created. Your password is <b>" + password +
 			"</b>. <br> Please validate your account by clicking the link below: <a href='" +
 			os.Getenv("FRONTEND_URL") +
-			os.Getenv("STAFF_VALIDATE_PATH") +
-			"?token=" + token + "'>Validate</a>"
+			os.Getenv("USER_VALIDATE_PATH") +
+			"?name=" + user.Account.Name + "&token=" + token + "'>Validate</a>"
 	}
 
 	err := service.SendMail(receiverEmail, emailSubject, emailBody)
