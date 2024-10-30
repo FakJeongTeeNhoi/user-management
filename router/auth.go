@@ -23,4 +23,8 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 		middleware.Authorize(),
 		middleware.SetAccountInfo(),
 		controller.ChangePasswordHandler)
+
+	authentication.GET("account-info",
+		middleware.SetAccountInfo(),
+		controller.GetAccountInfoHandler)
 }
