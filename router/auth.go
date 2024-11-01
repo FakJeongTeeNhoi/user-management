@@ -19,12 +19,12 @@ func AuthenticationGroup(server *gin.RouterGroup) {
 		middleware.SetAccountInfo(),
 		controller.VerifyHandler)
 
-	authentication.POST("change-password",
+	authentication.POST("/change-password",
 		middleware.Authorize(),
 		middleware.SetAccountInfo(),
 		controller.ChangePasswordHandler)
 
-	authentication.GET("account-info",
+	authentication.GET("/account-info",
 		middleware.SetAccountInfo(),
 		controller.GetAccountInfoHandler)
 }
