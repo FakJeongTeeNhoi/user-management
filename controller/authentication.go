@@ -207,3 +207,16 @@ func ChangePasswordHandler(c *gin.Context) {
 		Success: true,
 	})
 }
+
+func GetAccountInfoHandler(c *gin.Context) {
+	info, exists := c.Get("user")
+	if !exists {
+		response.InternalServerError("Cannot get account info").AbortWithError(c)
+		return
+	}
+
+	accountInfo := info.(jwt.MapClaims)
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	}.AddInterfaces(accountInfo))
+}
