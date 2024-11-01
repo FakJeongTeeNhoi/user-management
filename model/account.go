@@ -4,11 +4,12 @@ import "gorm.io/gorm"
 
 type Account struct {
 	gorm.Model
-	Email    string `json:"email" gorm:"unique;not null"`
-	Password string `json:"password" gorm:"not null"`
-	Name     string `json:"name" gorm:"not null"`
-	Faculty  string `json:"faculty" gorm:"not null"`
-	Type     string `json:"type" gorm:"not null"`
+	Email     string `json:"email" gorm:"unique;not null"`
+	Password  string `json:"password" gorm:"not null"`
+	Name      string `json:"name" gorm:"not null"`
+	Faculty   string `json:"faculty" gorm:"not null"`
+	Type      string `json:"type" gorm:"not null"`
+	Is_verify bool   `json:"is_verify" gorm:"default:false"`
 }
 
 type accountCreateRequest struct {
@@ -20,10 +21,11 @@ type accountCreateRequest struct {
 }
 
 type accountUpdateRequest struct {
-	ID      uint   `json:"id"`
-	Name    string `json:"name"`
-	Faculty string `json:"faculty"`
-	Type    string `json:"type"`
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	Faculty   string `json:"faculty"`
+	Type      string `json:"type"`
+	Is_verify bool   `json:"is_verify"`
 }
 
 func (a *Account) GetOne(filter interface{}) error {

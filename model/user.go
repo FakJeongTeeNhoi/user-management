@@ -2,6 +2,7 @@ package model
 
 import (
 	"cmp"
+
 	"gorm.io/gorm"
 )
 
@@ -29,11 +30,12 @@ type Users []User
 func (ucr *UserCreateRequest) ToUser() User {
 	return User{
 		Account: Account{
-			Email:    ucr.Email,
-			Password: ucr.Password,
-			Name:     ucr.Name,
-			Faculty:  ucr.Faculty,
-			Type:     ucr.Type,
+			Email:     ucr.Email,
+			Password:  ucr.Password,
+			Name:      ucr.Name,
+			Faculty:   ucr.Faculty,
+			Type:      ucr.Type,
+			Is_verify: false,
 		},
 		Role:   ucr.Role,
 		UserId: ucr.UserId,
@@ -49,11 +51,12 @@ func (uur *UserUpdateRequest) ToUser(u User) User {
 				UpdatedAt: u.Account.UpdatedAt,
 				DeletedAt: u.Account.DeletedAt,
 			},
-			Email:    u.Account.Email,
-			Password: u.Account.Password,
-			Name:     cmp.Or(uur.Name, u.Account.Name),
-			Faculty:  cmp.Or(uur.Faculty, u.Account.Faculty),
-			Type:     cmp.Or(uur.Type, u.Account.Type),
+			Email:     u.Account.Email,
+			Password:  u.Account.Password,
+			Name:      cmp.Or(uur.Name, u.Account.Name),
+			Faculty:   cmp.Or(uur.Faculty, u.Account.Faculty),
+			Type:      cmp.Or(uur.Type, u.Account.Type),
+			Is_verify: u.Account.Is_verify,
 		},
 		AccountId: u.AccountId,
 		Role:      cmp.Or(uur.Role, u.Role),

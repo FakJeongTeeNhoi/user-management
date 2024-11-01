@@ -33,7 +33,7 @@ services:
 
   app:
     build: .
-    container_name: app
+    container_name: app-user-management
     restart: always
     depends_on:
       postgres:

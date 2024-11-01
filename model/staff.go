@@ -2,6 +2,7 @@ package model
 
 import (
 	"cmp"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -25,11 +26,12 @@ type Staffs []Staff
 func (stf *StaffCreateRequest) ToStaff() Staff {
 	return Staff{
 		Account: Account{
-			Email:    stf.Email,
-			Password: stf.Password,
-			Name:     stf.Name,
-			Faculty:  stf.Faculty,
-			Type:     stf.Type,
+			Email:     stf.Email,
+			Password:  stf.Password,
+			Name:      stf.Name,
+			Faculty:   stf.Faculty,
+			Type:      stf.Type,
+			Is_verify: false,
 		},
 		Space_list: []uuid.UUID{},
 	}
@@ -44,11 +46,12 @@ func (sur *StaffUpdateRequest) ToStaff(s Staff) Staff {
 				UpdatedAt: s.Account.UpdatedAt,
 				DeletedAt: s.Account.DeletedAt,
 			},
-			Email:    s.Account.Email,
-			Password: s.Account.Password,
-			Name:     cmp.Or(sur.Name, s.Account.Name),
-			Faculty:  cmp.Or(sur.Faculty, s.Account.Faculty),
-			Type:     cmp.Or(sur.Type, s.Account.Type),
+			Email:     s.Account.Email,
+			Password:  s.Account.Password,
+			Name:      cmp.Or(sur.Name, s.Account.Name),
+			Faculty:   cmp.Or(sur.Faculty, s.Account.Faculty),
+			Type:      cmp.Or(sur.Type, s.Account.Type),
+			Is_verify: sur.Is_verify,
 		},
 		AccountId:  s.AccountId,
 		Space_list: s.Space_list,

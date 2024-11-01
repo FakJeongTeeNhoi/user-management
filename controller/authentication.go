@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FakJeongTeeNhoi/user-management/middleware"
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
@@ -50,6 +51,8 @@ func LoginHandler(c *gin.Context) {
 }
 
 func LogoutHandler(c *gin.Context) {
+	token := middleware.ExtractToken(c.GetHeader("authorization"))
+	middleware.BlackListToken = append(middleware.BlackListToken, token)
 	c.SetCookie("token", "", -1, "/", "", false, false)
 	c.JSON(200, response.CommonResponse{
 		Success: true,

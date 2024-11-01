@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/FakJeongTeeNhoi/user-management/model"
 	"os"
 	"time"
+
+	"github.com/FakJeongTeeNhoi/user-management/model"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -38,6 +39,7 @@ func GenerateToken(userType string, account model.Account) (string, error) {
 		"name":         account.Name,
 		"faculty":      account.Faculty,
 		"type":         account.Type,
+		"is_verify":    account.Is_verify,
 	}
 
 	if userType == "staff" {

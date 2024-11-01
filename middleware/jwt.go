@@ -2,13 +2,14 @@ package middleware
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"os"
-	"strings"
-	"time"
 )
 
 const (
@@ -21,6 +22,7 @@ var (
 		"/health",
 		"/api/auth/login",
 	}
+	BlackListToken = []string{}
 )
 
 func Authorize() gin.HandlerFunc {
@@ -30,7 +32,7 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
-		token := extractToken(c.GetHeader(headerAuthorization))
+		token := ExtractToken(c.GetHeader(headerAuthorization))
 		if token == "" {
 			response.Unauthorized("Missing token").AbortWithError(c)
 			return
@@ -41,13 +43,18 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
+		if contains(BlackListToken, token) {
+			response.Unauthorized("Invalid token").AbortWithError(c)
+			return
+		}
+
 		c.Next()
 	}
 }
 
 func SetAccountInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := extractToken(c.GetHeader(headerAuthorization))
+		token := ExtractToken(c.GetHeader(headerAuthorization))
 		accountInfo, err := service.GetInfoFromToken(token)
 		if err != nil {
 			response.Unauthorized("Invalid token").AbortWithError(c)
@@ -95,7 +102,7 @@ func isWhiteList(path string) bool {
 	return false
 }
 
-func extractToken(authorization string) string {
+func ExtractToken(authorization string) string {
 	if !strings.HasPrefix(authorization, headerBearerPrefix) {
 		return ""
 	}
