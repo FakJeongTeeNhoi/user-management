@@ -51,7 +51,7 @@ func (sur *StaffUpdateRequest) ToStaff(s Staff) Staff {
 			Name:      cmp.Or(sur.Name, s.Account.Name),
 			Faculty:   cmp.Or(sur.Faculty, s.Account.Faculty),
 			Type:      cmp.Or(sur.Type, s.Account.Type),
-			Is_verify: sur.Is_verify,
+			Is_verify: s.Account.Is_verify,
 		},
 		AccountId:  s.AccountId,
 		Space_list: s.Space_list,

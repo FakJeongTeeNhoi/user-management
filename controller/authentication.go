@@ -67,6 +67,18 @@ func VerifyHandler(c *gin.Context) {
 	}
 
 	accountInfo := info.(jwt.MapClaims)
+	accountInfo["is_verify"] = true
+	account := model.Account{}
+	if err := account.GetOne(map[string]interface{}{"email": accountInfo["email"]}); err != nil {
+		response.InternalServerError("Failed to get account").AbortWithError(c)
+		return
+	}
+	account.Is_verify = true
+	if err := account.Update(); err != nil {
+		response.InternalServerError("Failed to verify account").AbortWithError(c)
+		return
+	}
+
 	c.JSON(200, response.CommonResponse{
 		Success: true,
 	}.AddInterfaces(accountInfo))

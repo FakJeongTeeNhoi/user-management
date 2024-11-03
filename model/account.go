@@ -21,11 +21,10 @@ type accountCreateRequest struct {
 }
 
 type accountUpdateRequest struct {
-	ID        uint   `json:"id"`
-	Name      string `json:"name"`
-	Faculty   string `json:"faculty"`
-	Type      string `json:"type"`
-	Is_verify bool   `json:"is_verify"`
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	Faculty string `json:"faculty"`
+	Type    string `json:"type"`
 }
 
 func (a *Account) GetOne(filter interface{}) error {
