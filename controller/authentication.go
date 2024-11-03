@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FakJeongTeeNhoi/user-management/middleware"
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
@@ -50,6 +51,8 @@ func LoginHandler(c *gin.Context) {
 }
 
 func LogoutHandler(c *gin.Context) {
+	token := middleware.ExtractToken(c.GetHeader("authorization"))
+	middleware.BlackListToken = append(middleware.BlackListToken, token)
 	c.SetCookie("token", "", -1, "/", "", false, false)
 	c.JSON(200, response.CommonResponse{
 		Success: true,
@@ -64,6 +67,18 @@ func VerifyHandler(c *gin.Context) {
 	}
 
 	accountInfo := info.(jwt.MapClaims)
+	accountInfo["is_verify"] = true
+	account := model.Account{}
+	if err := account.GetOne(map[string]interface{}{"email": accountInfo["email"]}); err != nil {
+		response.InternalServerError("Failed to get account").AbortWithError(c)
+		return
+	}
+	account.Is_verify = true
+	if err := account.Update(); err != nil {
+		response.InternalServerError("Failed to verify account").AbortWithError(c)
+		return
+	}
+
 	c.JSON(200, response.CommonResponse{
 		Success: true,
 	}.AddInterfaces(accountInfo))

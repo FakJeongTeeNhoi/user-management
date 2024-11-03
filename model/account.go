@@ -4,11 +4,12 @@ import "gorm.io/gorm"
 
 type Account struct {
 	gorm.Model
-	Email    string `json:"email" gorm:"unique;not null"`
-	Password string `json:"password" gorm:"not null"`
-	Name     string `json:"name" gorm:"not null"`
-	Faculty  string `json:"faculty" gorm:"not null"`
-	Type     string `json:"type" gorm:"not null"`
+	Email     string `json:"email" gorm:"unique;not null"`
+	Password  string `json:"password" gorm:"not null"`
+	Name      string `json:"name" gorm:"not null"`
+	Faculty   string `json:"faculty" gorm:"not null"`
+	Type      string `json:"type" gorm:"not null"`
+	Is_verify bool   `json:"is_verify" gorm:"default:false"`
 }
 
 type accountCreateRequest struct {
