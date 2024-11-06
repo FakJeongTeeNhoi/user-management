@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:12
-    container_name: postgres
+    container_name: postgres-user
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -21,7 +21,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin-user
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
@@ -33,7 +33,7 @@ services:
 
   app:
     build: .
-    container_name: app-user-management
+    container_name: app-user
     restart: always
     depends_on:
       postgres:
