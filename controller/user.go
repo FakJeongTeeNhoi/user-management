@@ -38,6 +38,32 @@ func GetAllUsersHandler(c *gin.Context) {
 	}))
 }
 
+func GetUsersHandler(c *gin.Context) {
+	uif := model.UsersInfoRequest{}
+	
+	if err := c.ShouldBindJSON(&uif); err != nil {
+		response.BadRequest("Invalid request").AbortWithError(c)
+		return
+	}
+	users := model.Users{}
+	
+	for _, participant := range uif.UserList {
+		user := model.User{}
+		if err := user.GetOne(map[string]interface{}{"user_id": participant}); err != nil {
+			response.NotFound("User not found").AbortWithError(c)
+			return
+		}
+		users = append(users, user)
+	}
+	
+	c.JSON(200, response.CommonResponse{
+		Success: true,
+	}.AddInterfaces(map[string]interface{}{
+		"count": len(users),
+		"users": users,
+	}))
+}
+
 func GetUserHandler(c *gin.Context) {
 	accountId := c.Param("accountId")
 	user := model.User{}
