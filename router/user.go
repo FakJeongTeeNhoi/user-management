@@ -12,6 +12,7 @@ func UserRouterGroup(server *gin.RouterGroup) {
 
 	user.GET("/", controller.GetAllUsersHandler)
 	user.GET("/:accountId", controller.GetUserHandler)
+	user.POST("/", controller.GetUsersHandler)
 	user.PUT("/", controller.UpdateUserHandler)
 	user.DELETE("/:accountId", controller.DeleteUserHandler)
 }

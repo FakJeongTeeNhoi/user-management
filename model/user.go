@@ -25,6 +25,10 @@ type UserUpdateRequest struct {
 	UserId string `json:"user_id"`
 }
 
+type UsersInfoRequest struct {
+	UserList []uint `json:"user_list"`
+}
+
 type Users []User
 
 func (ucr *UserCreateRequest) ToUser() User {
