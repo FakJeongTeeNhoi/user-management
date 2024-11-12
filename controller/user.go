@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"strconv"
+
 	"github.com/FakJeongTeeNhoi/user-management/model"
 	"github.com/FakJeongTeeNhoi/user-management/model/response"
 	"github.com/FakJeongTeeNhoi/user-management/service"
@@ -49,7 +51,7 @@ func GetUsersHandler(c *gin.Context) {
 	
 	for _, participant := range uif.UserList {
 		user := model.User{}
-		if err := user.GetOne(map[string]interface{}{"user_id": participant}); err != nil {
+		if err := user.GetOne(map[string]interface{}{"user_id": strconv.FormatUint(uint64(participant), 10)}); err != nil {
 			response.NotFound("User not found").AbortWithError(c)
 			return
 		}
